@@ -1,28 +1,27 @@
 from typing import List
-
 class Solution:
-    def dfs(self, adj: List[List[int]], u: int, prt: int, ans: List[int]) -> int:
-        count = 0
-        for v in adj[u]:
-            if v != prt:
-                x = self.dfs(adj, v, u, ans)
-                if x % 2 == 0:
-                    ans[0] += 1
-                else:
-                    count += x
-        return count + 1
+    def minimumEdgeRemove(self, n : int, edges : List[List[int]]) -> int:
 
-    def minimumEdgeRemove(self, n: int, edges: List[List[int]]) -> int:
-        adj = [[] for _ in range(n)]
-        for edge in edges:
-            adj[edge[1] - 1].append(edge[0] - 1)
-            adj[edge[0] - 1].append(edge[1] - 1)
-
-        ans = [0]
-        self.dfs(adj, 0, -1, ans)
-        return ans[0]
+        def dfs(node, parent, adj, subtree_size, removable_edges):
+            count = 1
+            for neighbor in adj[node]:
+                if neighbor != parent:
+                    count += dfs(neighbor, node, adj, subtree_size, removable_edges)
+            subtree_size[node] = count
+            if count % 2 == 0 and node != 1:
+                removable_edges.append((parent, node))
+            return count
         
+        adj = {i: [] for i in range(1, n + 1)}
+        for u, v in edges:
+            adj[u].append(v)
+            adj[v].append(u)
+        subtree_size = [0] * (n + 1)
+        removable_edges = []
 
+        dfs(1, -1, adj, subtree_size, removable_edges)
+    
+        return len(removable_edges)
 
 
 #{ 
